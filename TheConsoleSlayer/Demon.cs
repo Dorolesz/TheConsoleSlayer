@@ -155,7 +155,7 @@ namespace TheConsoleSlayer
         {
             if (damage > 0)
             {
-                Health -= damage;
+                Health = Math.Max(0, Health - damage);
 
                 if (Health == 0)
                 {

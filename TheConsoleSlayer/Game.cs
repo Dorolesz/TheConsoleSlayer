@@ -21,8 +21,6 @@ namespace TheConsoleSlayer
             get { return demons; }
         }
 
-        private Player player;
-
         public Player Player { get; private set; }
 
         public bool Exited { get; set; }
@@ -111,6 +109,10 @@ namespace TheConsoleSlayer
                                 item.Interact();
                             }
                         }
+                        break;
+
+                    case ConsoleKey.F:
+                        PlayerAttackLogic();
                         break;
                 }
             }
@@ -208,7 +210,7 @@ namespace TheConsoleSlayer
                         break;
 
                     case DemonStateType.Attack:
-                        // A támadást később valósítjuk meg.
+                        DemonAttackLogic(demon);
                         break;
 
                     case DemonStateType.Idle:
@@ -236,7 +238,7 @@ namespace TheConsoleSlayer
             }
         }
 
-        //Támadás
+        //Játékos támadása
 
         private List<Demon> GetDemonsWithinDistance(Position position, double distance)
         {
@@ -269,7 +271,11 @@ namespace TheConsoleSlayer
 
                     demon.TakeDamage(damage);
 
-                    if (!demon.Alive)
+                    bool wasAlive = demon.Alive;
+
+                    demon.TakeDamage(damage);
+
+                    if (wasAlive && !demon.Alive)
                     {
                         switch (demon.Type)
                         {
@@ -290,9 +296,22 @@ namespace TheConsoleSlayer
             }
         }
 
+        //Démonok támadása
+        private void DemonAttackLogic(Demon demon)
+        {
+            double distance = Position.Distance(
+                demon.Position,
+                Player.Position
+            );
+
+            int damage = (int)(2 * RNG.Next(35, 106) / (1 + distance));
+
+            Player.TakeDamage(damage);
+        }
+
         public void Run()
         {
-            while (!Exited)
+            while (!Exited && Player.Alive)
             {
                 UpdateDemons();
                 CleanUpDemons();

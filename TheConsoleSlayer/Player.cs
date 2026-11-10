@@ -14,6 +14,7 @@ namespace TheConsoleSlayer
         private bool alive;
         private int combatPoints;
         private int sightRange;
+        public int BFGCells { get; private set; }
 
         public Player(int x, int y)
         {
@@ -45,7 +46,7 @@ namespace TheConsoleSlayer
             get { return health; }
             set
             {
-                if (value >= 0 && value <= MaxHealt)
+                if (value >= 0 && value <= MaxHealth)
                 {
                     health = value;
                 }
@@ -73,7 +74,7 @@ namespace TheConsoleSlayer
             get { return combatPoints; }
         }
 
-        public int MaxHealt
+        public int MaxHealth
         {
             get { return 100 + CombatPoints / 10; }
         }
@@ -86,6 +87,11 @@ namespace TheConsoleSlayer
         public int SightRange
         {
             get { return sightRange; }
+        }
+
+        public int MaxBFGCells
+        {
+            get { return 3; }
         }
 
         public void Shoot()
@@ -114,6 +120,29 @@ namespace TheConsoleSlayer
                 {
                     alive = false;
                 }
+            }
+        }
+
+        public void PickUpAmmo(int amount)
+        {
+            Ammo = Math.Min(Ammo + amount, MaxAmmo);
+        }
+
+        public void PickUpHealth(int amount)
+        {
+            Health = Math.Min(Health + amount, MaxHealth);
+        }
+
+        public void PickUpBFGCell(int amount)
+        {
+            BFGCells = Math.Min(BFGCells + amount, MaxBFGCells);
+        }
+
+        public void ShootBFG()
+        {
+            if (BFGCells > 0)
+            {
+                BFGCells--;
             }
         }
     }

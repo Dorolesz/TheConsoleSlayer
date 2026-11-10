@@ -30,6 +30,8 @@ namespace TheConsoleSlayer
         private int attackRange;
         private DemonStateType state;
 
+        private int speed;
+
         public Demon(Position position, ConsoleSprite sprite, DemonType type, double fillingRatio, int health, bool alive, int sightRange, int attackRange, DemonStateType state)
         {
             this.position = position;
@@ -88,6 +90,10 @@ namespace TheConsoleSlayer
         {
             get { return attackRange; }
         }
+        public int Speed
+        {
+            get { return speed; }
+        }
 
         public DemonStateType State
         {
@@ -101,10 +107,10 @@ namespace TheConsoleSlayer
             this.type = type;
             alive = true;
 
-            SetInitialPropertirs();
+            SetInitialPropertis();
         }
 
-        private void SetInitialPropertirs()
+        private void SetInitialPropertis()
         {
             switch (type)
             {
@@ -113,6 +119,7 @@ namespace TheConsoleSlayer
                     health = 20;
                     sightRange = 3;
                     attackRange = 1;
+                    speed = 25;
                     sprite = new ConsoleSprite(ConsoleColor.Black, ConsoleColor.Green, 'o');
                     break;
 
@@ -121,6 +128,7 @@ namespace TheConsoleSlayer
                     health = 60;
                     sightRange = 6;
                     attackRange = 3;
+                    speed = 50;
                     sprite = new ConsoleSprite(ConsoleColor.Black, ConsoleColor.Red, 'o');
                     break;
 
@@ -129,6 +137,7 @@ namespace TheConsoleSlayer
                     health = 600;
                     sightRange = 9;
                     attackRange = 6;
+                    speed = 25;
                     sprite = new ConsoleSprite(ConsoleColor.Black, ConsoleColor.DarkRed, 'O');
                     break;
             }

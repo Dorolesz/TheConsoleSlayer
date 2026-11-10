@@ -2,9 +2,20 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using WMPLib;
 
 namespace TheConsoleSlayer
 {
+    enum SoundEffectType
+    {
+        BFG,
+        Door,
+        ItemPickup,
+        Pain,
+        PlayerDeath,
+        Shotgun
+    }
+
     internal class Game
     {
         private List<GameItem> items;
@@ -15,6 +26,10 @@ namespace TheConsoleSlayer
         private Stopwatch stopwatchRenderer;
 
         private static Random RNG = new Random();
+
+        private WindowsMediaPlayer MusicPlayer;
+        private WindowsMediaPlayer SfxPlayer;
+
 
         public List<GameItem> Items
         {
@@ -43,10 +58,16 @@ namespace TheConsoleSlayer
             stopwatchLogic = new Stopwatch();
             stopwatchRenderer = new Stopwatch();
 
-            //példa
+            MusicPlayer = new WindowsMediaPlayer();
+            SfxPlayer = new WindowsMediaPlayer();
+
+            /**
+             * //példa
             demons.Add(new Demon(10, 5, DemonType.Zombieman));
             demons.Add(new Demon(15, 8, DemonType.Imp));
             demons.Add(new Demon(20, 10, DemonType.Mancubus));
+             */
+
 
             Exited = false;
         }
@@ -81,26 +102,135 @@ namespace TheConsoleSlayer
                         break;
 
                     case ConsoleKey.D:
-                        foreach (GameItem item in Items)
-                        {
-                            if (item.Position.X == Player.Position.X &&
-                                item.Position.Y == Player.Position.Y)
-                            {
-                                item.Interact();
-                            }
-                        }
+                        gameLogic.PlayerDirectInteractLogic();
                         break;
 
                     case ConsoleKey.F:
                         gameLogic.PlayerAttackLogic();
                         break;
+
+                    case ConsoleKey.S:
+                        gameLogic.PlayerBFGAttackLogic();
+                        break;
+                }
+            }
+
+            gameLogic.PlayerIndirectInteractionLogic();
+        }
+
+        public void LoadMapFromPlainText(string filePath)
+        {
+            string[] lines = File.ReadAllLines(filePath);
+
+            string[] dimensions = lines[0].Split(',');
+
+            int rows = int.Parse(dimensions[0]);
+            int columns = int.Parse(dimensions[1]);
+
+            for (int y = 0; y < rows; y++)
+            {
+                string line = lines[y + 1];
+
+                for (int x = 0; x < columns; x++)
+                {
+                    char symbol = line[x];
+
+                    switch (symbol)
+                    {
+                        case 'A':
+                            items.Add(new GameItem(x, y, ItemType.Ammo));
+                            break;
+
+                        case 'B':
+                            items.Add(new GameItem(x, y, ItemType.BFGCell));
+                            break;
+
+                        case 'D':
+                            items.Add(new GameItem(x, y, ItemType.Door));
+                            break;
+
+                        case 'E':
+                            items.Add(new GameItem(x, y, ItemType.LevelExit));
+                            break;
+
+                        case 'M':
+                            items.Add(new GameItem(x, y, ItemType.Medikit));
+                            break;
+
+                        case 'T':
+                            items.Add(new GameItem(x, y, ItemType.ToxicWaste));
+                            break;
+
+                        case 'W':
+                            items.Add(new GameItem(x, y, ItemType.Wall));
+                            break;
+
+                        case 'z':
+                            demons.Add(new Demon(x, y, DemonType.Zombieman));
+                            break;
+
+                        case 'i':
+                            demons.Add(new Demon(x, y, DemonType.Imp));
+                            break;
+
+                        case 'm':
+                            demons.Add(new Demon(x, y, DemonType.Mancubus));
+                            break;
+
+                        case 'p':
+                            Player = new Player(x, y);
+                            break;
+
+                        case '_':
+                            //üres
+                            break;
+                    }
                 }
             }
         }
 
+        public void PlaySoundEffect(SoundEffectType effectType)
+        {
+            switch (effectType)
+            {
+                case SoundEffectType.BFG:
+                    SfxPlayer.URL = "sound/bfg.mp3";
+                    break;
+
+                case SoundEffectType.Door:
+                    SfxPlayer.URL = "sound/door.mp3";
+                    break;
+
+                case SoundEffectType.ItemPickup:
+                    SfxPlayer.URL = "sound/item_pickup.mp3";
+                    break;
+
+                case SoundEffectType.Pain:
+                    SfxPlayer.URL = "sound/pain.mp3";
+                    break;
+
+                case SoundEffectType.PlayerDeath:
+                    SfxPlayer.URL = "sound/player_death.mp3";
+                    break;
+
+                case SoundEffectType.Shotgun:
+                    SfxPlayer.URL = "sound/shotgun.mp3";
+                    break;
+            }
+
+            SfxPlayer.controls.play();
+        }
+
+        public void PlayMusic(string filePath)
+        {
+            MusicPlayer.URL = filePath;
+            MusicPlayer.controls.play();
+        }
 
         public void Run()
         {
+            PlayMusic("sound/bfg.mp3");
+
             stopwatchLogic.Start();
             stopwatchRenderer.Start();
 
@@ -108,7 +238,10 @@ namespace TheConsoleSlayer
             {
                 if (stopwatchLogic.ElapsedMilliseconds > 500)
                 {
-                    gameLogic.UpdateGameState();
+                     long deltaTime = stopwatchLogic.ElapsedMilliseconds;
+
+                    gameLogic.UpdateGameState(deltaTime);
+
                     stopwatchLogic.Restart();
                 }
                 if (stopwatchRenderer.ElapsedMilliseconds > 25)
@@ -120,8 +253,19 @@ namespace TheConsoleSlayer
                 UserAction();
             }
 
+            if (Exited)
+            {
+                PlayMusic("sound/victory.mp3");
+            }
+            else if (!Player.Alive)
+            {
+                PlaySoundEffect(SoundEffectType.PlayerDeath);
+            }
+
             Console.ResetColor();
             Console.CursorVisible = true;
+
+            Console.ReadLine();
         }
     }
 }

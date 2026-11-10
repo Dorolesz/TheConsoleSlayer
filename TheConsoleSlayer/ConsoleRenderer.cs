@@ -35,16 +35,49 @@ namespace TheConsoleSlayer
 
             foreach (GameItem item in game.Items)
             {
-                RenderSingleSprite(item.Position, item.Sprite);
+                double distance = Position.Distance(
+                game.Player.Position,
+                item.Position
+            );
+
+                if (distance <= game.Player.SightRange)
+                {
+                    RenderSingleSprite(item.Position, item.Sprite);
+                }
             }
 
             foreach (Demon demon in game.Demons)
             {
-                RenderSingleSprite(demon.Position, demon.Sprite);
+                double distance = Position.Distance(
+                game.Player.Position,
+                demon.Position
+            );
+
+                if (distance <= game.Player.SightRange)
+                {
+                    RenderSingleSprite(demon.Position, demon.Sprite);
+                }
             }
 
             RenderSingleSprite(game.Player.Position, game.Player.Sprite);
+
+            RenderHUD();
         }
 
+        private void RenderHUD()
+        {
+            Console.SetCursorPosition(0, Console.WindowHeight - 1);
+
+            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            Console.ForegroundColor = ConsoleColor.White;
+
+            string hud = $" HP: {game.Player.Health}/{game.Player.MaxHealth} " +
+                 $"| Ammo: {game.Player.Ammo}/{game.Player.MaxAmmo} " +
+                 $"| BFG: {game.Player.BFGCells}/{game.Player.MaxBFGCells} " +
+                 $"| XP: {game.Player.CombatPoints} ";
+
+            Console.Write(hud.PadRight(Console.WindowWidth));
+            Console.ResetColor();
+        }
     }
 }

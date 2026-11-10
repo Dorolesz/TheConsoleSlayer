@@ -8,6 +8,8 @@ namespace TheConsoleSlayer
         {
             Game game = new Game();
 
+            game.LoadMapFromPlainText("map.txt");
+
             game.Items.Add(new GameItem(3, 3, ItemType.Door));
             game.Items.Add(new GameItem(5, 3, ItemType.Medikit));
             game.Items.Add(new GameItem(7, 3, ItemType.Ammo));

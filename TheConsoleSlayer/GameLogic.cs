@@ -69,9 +69,9 @@ namespace TheConsoleSlayer
                 game.Player.Position
             );
 
-            double damage = (int)(2 * RNG.Next(35, 106) / (1 + distance)) * (deltaTime / 1000.0);
+            int damage = (int)(2 * RNG.Next(35, 106) / (1 + distance));
 
-            game.Player.TakeDamage((int)damage);
+            game.Player.TakeDamage(damage);
         }
 
         private List<GameItem> GetGameItemsWithinDistance(Position position, double distance)
@@ -149,6 +149,7 @@ namespace TheConsoleSlayer
             if (game.Player.Ammo > 0)
             {
                 game.Player.Shoot();
+                game.PlaySoundEffect(SoundEffectType.Shotgun);
 
                 List<Demon> targets =
                     GetDemonsWithinDistance(game.Player.Position, game.Player.SightRange);
@@ -157,13 +158,17 @@ namespace TheConsoleSlayer
                 {
                     double distance = Position.Distance(game.Player.Position, demon.Position);
 
-                    int damage = 2 * RNG.Next(35, 106) / (1 + (int)distance);
-
+                    int damage = (int)(2 * RNG.Next(35, 106) / (1 + distance));
                     demon.TakeDamage(damage);
 
                     bool wasAlive = demon.Alive;
 
                     demon.TakeDamage(damage);
+
+                    if (wasAlive && !demon.Alive)
+                    {
+                        // Combat points hozzáadása
+                    }
 
                     if (wasAlive && !demon.Alive)
                     {
@@ -269,8 +274,6 @@ namespace TheConsoleSlayer
                         break;
                 }
             }
-
-            game.PlaySoundEffect(SoundEffectType.Door);
         }
 
         private void DemonIndirectInteractionLogic(Demon demon)
@@ -284,8 +287,6 @@ namespace TheConsoleSlayer
                     demon.TakeDamage(5);
                 }
             }
-
-            game.PlaySoundEffect(SoundEffectType.Door);
         }
 
         public void PlayerBFGAttackLogic()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using WMPLib;
+using System.Threading;
 
 namespace TheConsoleSlayer
 {
@@ -54,6 +55,7 @@ namespace TheConsoleSlayer
 
             renderer = new ConsoleRenderer(this);
             gameLogic = new GameLogic(this);
+
 
             stopwatchLogic = new Stopwatch();
             stopwatchRenderer = new Stopwatch();
@@ -220,7 +222,7 @@ namespace TheConsoleSlayer
 
             SfxPlayer.controls.play();
         }
-
+        
         public void PlayMusic(string filePath)
         {
             MusicPlayer.URL = filePath;
@@ -229,7 +231,7 @@ namespace TheConsoleSlayer
 
         public void Run()
         {
-            PlayMusic("sound/bfg.mp3");
+            PlayMusic("sound/music.mp3");
 
             stopwatchLogic.Start();
             stopwatchRenderer.Start();
@@ -256,10 +258,17 @@ namespace TheConsoleSlayer
             if (Exited)
             {
                 PlayMusic("sound/victory.mp3");
+                Console.WriteLine("YOU WIN!");
+
             }
             else if (!Player.Alive)
             {
+                Console.Clear();
+                Console.WriteLine("YOU DIED!");
+
                 PlaySoundEffect(SoundEffectType.PlayerDeath);
+
+                Thread.Sleep(3000);
             }
 
             Console.ResetColor();

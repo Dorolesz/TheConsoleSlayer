@@ -112,11 +112,11 @@ namespace TheConsoleSlayer
 
         public void TakeDamage(int damage)
         {
-            if (damage > 0)
+            if (damage > 0 && alive)
             {
-                Health -= damage;
+                health = Math.Max(0, health - damage);
 
-                if (Health == 0)
+                if (health == 0)
                 {
                     alive = false;
                 }
